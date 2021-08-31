@@ -20,17 +20,37 @@ struct RuntimeError: Error {
     }
 }
 
+public struct PamResponse: Codable{
+    let code: String?
+    let message: String?
+    let contactID: String?
+    let database: String?
+    let consentID:String?
+    
+    enum CodingKeys: String, CodingKey {
+        case code = "code"
+        case message = "message"
+        case contactID = "contact_id"
+        case database = "_database"
+        case consentID = "consent_id"
+    }
+}
+
 struct PamConfig: Codable {
     var pamServer: String
     let publicDBAlias: String
     let loginDBAlias: String
+    let trackingConsentMessageID:String?
 
     enum CodingKeys: String, CodingKey {
         case pamServer = "pam-server"
         case publicDBAlias = "public-db-alias"
         case loginDBAlias = "login-db-alias"
+        case trackingConsentMessageID = "pam-tracking-consent-message-id"
     }
 }
+
+public typealias TrackerCallback = (PamResponse) -> Void
 
 public class Pam: NSObject {
     public static var shared = Pam()
@@ -56,24 +76,37 @@ public class Pam: NSObject {
     var sessionID: String?
     var sessionExpire:Date?
     
-    var deleteLoginContactAfterPost = false
     var isAppLaunchTracked = false
 
     var pushToken:String?
     
     var onGetCustomerID:( ()->String? )?
     
+    var _allowTracking:Bool = false
+    var allowTracking: Bool {
+        set{
+            self._allowTracking = newValue
+            saveValue(value: newValue, key: .allowTracking)
+        }
+        get{
+            return _allowTracking
+        }
+    }
+    
     enum SaveKey: String {
-        case custID = "cust_id"
-        case contactID = "contact_id"
-        case loginContactID = "login_contact_id"
+        case customerID = "@pam_customer_id"
+        case contactID = "@_pam_contact_id"
+        case loginContactID = "@_pam_login_contact_id"
+        case pushKey = "@_pam_push_key"
+        case allowTracking = "@_pam_allow_tracking"
     }
     
     func initialize(launchOptions: [UIApplication.LaunchOptionsKey: Any]?, enableLog: Bool = false) throws {
         isEnableLog = enableLog
+        allowTracking = readBoolValue(key: .allowTracking) ?? false
         
         queue.onQueueStart = {
-            self.postTracker(event: $0.event, payload: $0.payload)
+            self.postTracker(event: $0.event, payload: $0.payload, trackerCallBack: $0.trackerCallBack)
         }
 
         if let filepath = Bundle.main.path(forResource: "pam-config", ofType: "json") {
@@ -97,11 +130,43 @@ public class Pam: NSObject {
         }
 
         if let noti = launchOptions?[UIApplication.LaunchOptionsKey.remoteNotification] {
-            print(noti)
+            if isEnableLog {
+                print(noti)
+            }
         }
         
         UNUserNotificationCenter.current().delegate = self
     }
+    
+    public func fetchNotificationHistory(callBack: ([NotificationItem])->Void?){
+//            if(custID == null && getContactID() == null) {
+//                callBack(null)
+//            }
+//
+//            val url = "${options?.pamServer!!}/api/app-notifications"
+//
+//            val query = mutableMapOf<String, String>(
+//                "_database" to (getDatabaseAlias() ?: "")
+//            )
+//
+//            custID?.let{
+//                query["customer"] = it
+//            }
+//
+//            getContactID()?.let{
+//                query["_contact_id"] = it
+//            }
+//
+//            Http.getInstance().get(
+//                url=url,
+//                queryString = query
+//            ){ result, _ ->
+//                val model = Gson().fromJson(result, NotificationList::class.java)
+//                CoroutineScope(Dispatchers.Main).launch {
+//                    callBack.invoke(model.items)
+//                }
+//            }
+        }
     
     func updateCustomerID(){
         if let customerId = onGetCustomerID?() {
@@ -198,11 +263,43 @@ public class Pam: NSObject {
         return custID != nil
     }
     
-    func track(event: String, payload: [String: Any]? = nil) {
-        queue.enqueue(track: TrackQueue(event: event, payload: payload))
+    func track(event: String, payload: [String: Any]? = nil, trackerCallBack: TrackerCallback? = nil) {
+        queue.enqueue(track: TrackQueue(event: event, payload: payload, trackerCallBack: trackerCallBack))
+    }
+    
+    func getLoginContactID()->String?{
+        if loginContactID != nil && loginContactID != ""{
+            return loginContactID
+        }
+        
+        let loginContactID = readValue(key: .loginContactID)
+        if loginContactID != nil && loginContactID != "" {
+            return loginContactID
+        }
+        
+        return nil
+    }
+    
+    func getPublicContactID()->String?{
+        if publicContactID != nil && publicContactID != ""{
+            return publicContactID
+        }
+        
+        let loginContactID = readValue(key: .contactID)
+        if loginContactID != nil && loginContactID != "" {
+            return loginContactID
+        }
+        
+        return nil
+    }
+    
+    public func getContactID() -> String? {
+        let publicContact = publicContactID ?? readValue(key: .contactID)
+        let loginContact = loginContactID ?? readValue(key: .loginContactID)
+        return loginContact ?? publicContact
     }
 
-    private func postTracker(event: String, payload: [String: Any]? = nil) {
+    private func postTracker(event: String, payload: [String: Any]? = nil, trackerCallBack: TrackerCallback? = nil) {
         let url = (config?.pamServer ?? "") + "/trackers/events"
 
         var body: [String: Any] = [
@@ -210,17 +307,18 @@ public class Pam: NSObject {
             "platform": "iOS: \(osVersion),  \(bundleID): \(versionBuild)",
             "form_fields": [],
         ]
-
+        
         var formField: [String: Any] = [
             "os_version": "iOS \(osVersion)",
             "app_version": versionBuild,
             "_session_id": getSessionID()
         ]
         
-        let publicContact = publicContactID ?? readValue(key: .contactID)
-        let loginContact = loginContactID ?? readValue(key: .loginContactID)
+        if let trackingConsentMessageID = config?.trackingConsentMessageID{
+            formField["_consent_message_id"] = trackingConsentMessageID
+        }
         
-        if let contactID = loginContact ?? publicContact {
+        if let contactID = getContactID() {
             formField["_contact_id"] = contactID
         }
         
@@ -234,7 +332,7 @@ public class Pam: NSObject {
 
         if isUserLogin() {
             formField["_database"] = config?.loginDBAlias ?? ""
-            if let customer = custID ?? readValue(key: .custID) {
+            if let customer = custID ?? readValue(key: .customerID) {
                 formField["customer"] = customer
             }
         } else {
@@ -249,8 +347,8 @@ public class Pam: NSObject {
             print("🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉\n",PAMHelper.prettify(dict: body), "\n🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉\n\n")
         }
 
-        HttpClient.post(url: url, queryString: nil, headers: nil, json: body) {
-            if let contactID = $0?["contact_id"] as? String {
+        HttpClient.post(url: url, queryString: nil, headers: nil, json: body) { res in
+            if let contactID = res?["contact_id"] as? String {
                 
                 if self.isUserLogin() {
                     self.saveValue(value: contactID, key: .loginContactID)
@@ -264,43 +362,54 @@ public class Pam: NSObject {
                     print("🦄 PAM :Login=\(self.isUserLogin())  Received Contact ID=", contactID)
                 }
                 
-                if self.deleteLoginContactAfterPost {
-                    self.deleteLoginContactAfterPost = false
-                    self.custID = nil
-                    self.loginContactID = nil
-                    self.removeValue(key: .custID)
-                    self.removeValue(key: .loginContactID)
-                }
-                
-                DispatchQueue.main.async {
-                    self.queue.next()
-                }
-                
             }
+            
+            let response = PamResponse(code: res?["code"] as? String,
+                        message: res?["message"] as? String,
+                        contactID: res?["contact_id"] as? String,
+                        database: res?["database"] as? String,
+                        consentID: res?["consent_id"] as? String)
+            
+            DispatchQueue.main.async {
+                trackerCallBack?(response)
+                self.queue.next()
+            }
+            
         }
     }
     
     func userLogin(custID: String) {
-        saveValue(value: custID, key: .custID)
+        
+        track(event: "delete_media", payload: ["_delete_media": ["ios_notification": ""]])
+        
+        saveValue(value: custID, key: .customerID)
         self.custID = custID
-    
         track(event: "login")
+        
         if let token = self.pushToken {
             track(event: "save_push", payload: ["ios_notification": token])
         }
     }
-
+    
     func userLogout() {
         if isEnableLog {
             print("🦄 PAM :  Logout")
         }
         
-        track(event: "logout", payload: ["_delete_media": ["ios_notification": ""]])
+        track(event: "delete_media", payload: ["_delete_media": ["ios_notification": ""]])
+        track(event: "logout"){ _ in
+            self.custID = nil
+            self.loginContactID = nil
+            self.removeValue(key: .customerID)
+            self.removeValue(key: .loginContactID)
+        }
+        
+        removeValue(key: .customerID)
+        self.custID = nil
+    
         if let token = self.pushToken {
             track(event: "save_push", payload: ["ios_notification": token])
         }
-        
-        deleteLoginContactAfterPost = true
     }
 
     public func didReceiveRemoteNotification(userInfo: [AnyHashable: Any], fetchCompletionHandler: @escaping (UIBackgroundFetchResult) -> Void) -> Bool {
@@ -322,9 +431,18 @@ public class Pam: NSObject {
         userDefault.set(value, forKey: key.rawValue)
         userDefault.synchronize()
     }
+    
+    private func saveValue(value: Bool, key: SaveKey) {
+        userDefault.set(value, forKey: key.rawValue)
+        userDefault.synchronize()
+    }
 
     private func readValue(key: SaveKey) -> String? {
         return userDefault.string(forKey: key.rawValue)
+    }
+    
+    private func readBoolValue(key: SaveKey)-> Bool? {
+        return userDefault.bool(forKey: key.rawValue)
     }
 
     private func removeValue(key: SaveKey) {
@@ -335,20 +453,20 @@ public class Pam: NSObject {
     func setDeviceToken(deviceToken: Data) {
         let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
         let token = tokenParts.joined()
-
+        setDeviceToken(deviceToken: token)
+    }
+    
+    func setDeviceToken(deviceToken: String) {
         #if DEBUG
-            let saveToken = "_" + token
+            let saveToken = "_\(deviceToken)"
         #else
-            let saveToken = token
+            let saveToken = deviceToken
         #endif
-        pushToken = saveToken
         track(event: "save_push", payload: ["ios_notification": saveToken])
-
         if isEnableLog {
             print("🦄 PAM :  Save Push Notification Token=\(saveToken)")
         }
-
-        dispatch("onToken", data: ["token": token])
+        dispatch("onToken", data: ["token": deviceToken])
     }
 }
 

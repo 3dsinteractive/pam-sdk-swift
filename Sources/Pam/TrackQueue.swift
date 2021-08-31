@@ -10,4 +10,5 @@ import Foundation
 struct TrackQueue {
     let event:String
     let payload: [String: Any]?
+    let trackerCallBack: TrackerCallback?
 }
