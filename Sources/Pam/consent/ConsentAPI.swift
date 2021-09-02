@@ -11,13 +11,12 @@ class ConsentAPI {
     private var resultMessages: [String: BaseConsentMessage]?
     private var _onConsentLoadCallBack: OnLoadConsentMessage?
     
-    private var submitConsentQueue: [BaseConsentMessage]?
+    private var submitConsentQueue: [BaseConsentMessage?]?
     private var resultSubmit: [String: AllowConsentResult]?
     private var _onConsentSubmitCallBack: OnSubmitConsent?
     
     private var resultUserConsentLoad: [String: UserConsentPermissions]?
     private var _onPermissionLoadCallBack: OnLoadPermission?
-    
     
     func setOnPermissionLoadCallBack(callBack: @escaping OnLoadPermission){
         _onPermissionLoadCallBack = callBack
@@ -40,7 +39,7 @@ class ConsentAPI {
         }
     }
     
-    func submitConsents(consents: [BaseConsentMessage]){
+    func submitConsents(consents: [BaseConsentMessage?]){
         if (!isLoading) {
             submitConsentQueue = consents
             index = 0
@@ -82,11 +81,11 @@ class ConsentAPI {
             payload["_version"] = consent.version
             
             consent.permission.forEach{ it in
-                payload[it.getSubmitKey()] = it.accept
+                payload[it.getSubmitKey()] = it.allow
                 
                 if let trackingConsentMessageID = Pam.shared.config?.trackingConsentMessageID {
                     if(consent.id == trackingConsentMessageID && it.getSubmitKey() == "_allow_preferences_cookies"){
-                        Pam.shared.allowTracking = it.accept
+                        Pam.shared.allowTracking = it.allow
                     }
                 }
             }

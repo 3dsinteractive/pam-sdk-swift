@@ -22,18 +22,18 @@ public struct UserConsentPermissions{
     }
     
     static func parse(json: Json)-> UserConsentPermissions{
-
+        
         let consentID = json[\.consent_id].string
-
+        
         let type = getType(type: json[\.consent_message_type].string)
-       
+        
         let consentMessageId = json[\.consent_message_id].string
         let version = json[\.version].int
         let needToReview = json[\.need_consent_review].bool
         let lastConsentVersion = json[\.last_consent_version].int
-
+        
         let permissions = parsePermission(json)
-
+        
         let contactID = json[\.contact_id].string
         let lastConsentAt = json[\.last_consent_at].string
         
@@ -47,150 +47,146 @@ public struct UserConsentPermissions{
                                       contactID: contactID,
                                       lastConsentAt: lastConsentAt)
     }
-
+    
     private static func parsePermission(_ json:Json?)-> [ConsentPermission]{
         var list:[ConsentPermission] = []
-
+        
         if let json = json?[\.tracking_permission].json {
             
             if let it = json[\.terms_and_conditions].bool {
-                let perm = ConsentPermission(name: "Terms and Conditions",
-                                             key: "terms_and_conditions",
-                                             shortDescription: nil,
-                                             fullDescription: nil,
-                                             fullDescriptionEnabled: false,
-                                             require: true,
-                                             accept: it)
+                let perm = ConsentPermission(
+                    name: .termsAndConditions,
+                    shortDescription: nil,
+                    fullDescription: nil,
+                    fullDescriptionEnabled: false,
+                    require: true,
+                    allow: it)
                 list.append(perm)
             }
             
             if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "Privacy overview",
-                                             key: "privacy_overview",
-                                             shortDescription: nil,
-                                             fullDescription: nil,
-                                             fullDescriptionEnabled: false,
-                                             require: true,
-                                             accept: it)
-                list.append(perm)
-            }
-
-            if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "Necessary cookies",
-                                             key: "necessary_cookies",
-                                             shortDescription: nil,
-                                             fullDescription: nil,
-                                             fullDescriptionEnabled: false,
-                                             require: true,
-                                             accept: it)
+                let perm = ConsentPermission(
+                    name:.privacyOverview,
+                    shortDescription: nil,
+                    fullDescription: nil,
+                    fullDescriptionEnabled: false,
+                    require: true,
+                    allow: it)
                 list.append(perm)
             }
             
             if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "Preferences cookies",
-                                             key: "preferences_cookies",
-                                             shortDescription: nil,
-                                             fullDescription: nil,
-                                             fullDescriptionEnabled: false,
-                                             require: true,
-                                             accept: it)
+                let perm = ConsentPermission(
+                    name: .necessaryCookies,
+                    shortDescription: nil,
+                    fullDescription: nil,
+                    fullDescriptionEnabled: false,
+                    require: true,
+                    allow: it)
                 list.append(perm)
             }
             
             if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "Analytics cookies",
-                                             key: "analytics_cookies",
-                                             shortDescription: nil,
-                                             fullDescription: nil,
-                                             fullDescriptionEnabled: false,
-                                             require: false,
-                                             accept: it)
+                let perm = ConsentPermission(
+                    name: .preferencesCookies,
+                    shortDescription: nil,
+                    fullDescription: nil,
+                    fullDescriptionEnabled: false,
+                    require: true,
+                    allow: it)
                 list.append(perm)
             }
             
             if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "Marketing cookies",
-                                             key: "marketing_cookies",
-                                             shortDescription: nil,
-                                             fullDescription: nil,
-                                             fullDescriptionEnabled: false,
-                                             require: false,
-                                             accept: it)
+                let perm = ConsentPermission(
+                    name: .analyticsCookies,
+                    shortDescription: nil,
+                    fullDescription: nil,
+                    fullDescriptionEnabled: false,
+                    require: false,
+                    allow: it)
                 list.append(perm)
             }
-
+            
             if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "Social media cookies",
-                                             key: "social_media_cookies",
-                                             shortDescription: nil,
-                                             fullDescription: nil,
-                                             fullDescriptionEnabled: false,
-                                             require: false,
-                                             accept: it)
+                let perm = ConsentPermission(
+                    name: .marketingCookies,
+                    shortDescription: nil,
+                    fullDescription: nil,
+                    fullDescriptionEnabled: false,
+                    require: false,
+                    allow: it)
                 list.append(perm)
             }
-
+            
+            if let it = json[\.privacy_overview].bool {
+                let perm = ConsentPermission(
+                    name: .socialMediaCookies,
+                    shortDescription: nil,
+                    fullDescription: nil,
+                    fullDescriptionEnabled: false,
+                    require: false,
+                    allow: it)
+                list.append(perm)
+            }
+            
         }
-
+        
         if let json = json?[\.contacting_permission].json {
             
             if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "Email",
-                                             key: "email",
-                                             shortDescription: nil,
-                                             fullDescription: nil,
-                                             fullDescriptionEnabled: false,
-                                             require: false,
-                                             accept: it)
+                let perm = ConsentPermission(
+                    name: .email,
+                    shortDescription: nil,
+                    fullDescription: nil,
+                    fullDescriptionEnabled: false,
+                    require: false,
+                    allow: it)
                 list.append(perm)
             }
             
             if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "SMS",
-                                             key: "sms",
+                let perm = ConsentPermission(name: .sms,
                                              shortDescription: nil,
                                              fullDescription: nil,
                                              fullDescriptionEnabled: false,
                                              require: false,
-                                             accept: it)
+                                             allow: it)
                 list.append(perm)
             }
             
             if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "LINE",
-                                             key: "line",
+                let perm = ConsentPermission(name: .line,
                                              shortDescription: nil,
                                              fullDescription: nil,
                                              fullDescriptionEnabled: false,
                                              require: false,
-                                             accept: it)
+                                             allow: it)
                 list.append(perm)
             }
             
             if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "Facebook Messenger",
-                                             key: "facebook_messenger",
+                let perm = ConsentPermission(name: .facebookMessenger,
                                              shortDescription: nil,
                                              fullDescription: nil,
                                              fullDescriptionEnabled: false,
                                              require: false,
-                                             accept: it)
+                                             allow: it)
                 list.append(perm)
             }
             
             if let it = json[\.privacy_overview].bool {
-                let perm = ConsentPermission(name: "Push notification",
-                                             key: "push_notification",
+                let perm = ConsentPermission(name: .pushNotification,
                                              shortDescription: nil,
                                              fullDescription: nil,
                                              fullDescriptionEnabled: false,
                                              require: false,
-                                             accept: it)
+                                             allow: it)
                 list.append(perm)
             }
-
+            
         }
-
+        
         return list
     }
 }
