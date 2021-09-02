@@ -101,7 +101,7 @@ extension Pam {
     }
     
     public static func submitConsent(
-        consents: [BaseConsentMessage],
+        consents: [BaseConsentMessage?],
         onSubmit: @escaping ([String: AllowConsentResult], String) -> Void
     ) {
         let api = ConsentAPI()
@@ -120,7 +120,7 @@ extension Pam {
     }
     
     public static func submitConsent(
-        consent: BaseConsentMessage,
+        consent: BaseConsentMessage?,
         onSubmit: @escaping (AllowConsentResult, String) -> Void
     ) {
         submitConsent(consents: [consent]) { result, consentIDs in
