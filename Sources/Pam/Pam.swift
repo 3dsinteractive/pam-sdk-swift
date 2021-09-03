@@ -338,6 +338,10 @@ public class Pam: NSObject {
         } else {
             formField["_database"] = config?.publicDBAlias ?? ""
         }
+        
+        if let uuid = UIDevice.current.identifierForVendor?.uuidString {
+            formField["uuid"] = uuid
+        }
 
         body["form_fields"] = formField
 
