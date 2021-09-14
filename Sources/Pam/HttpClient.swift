@@ -75,6 +75,11 @@ enum HttpClient {
             request.addValue($0.value, forHTTPHeaderField: $0.key)
         }
 
+            
+        if Pam.shared.isEnableLog {
+            print("🛺 Request GET: ", url )
+        }
+        
         let session = URLSession.shared
         session.dataTask(with: request) { data, _, error in
             if error == nil, let data = data {

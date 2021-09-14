@@ -127,6 +127,7 @@ public struct ConsentMessage: BaseConsentMessage{
     public let availableLanguages: [String]
     public let defaultLanguage: String
     public var permission: [ConsentPermission]
+    public let moreInfoButtonText: Text?
     
     public func allowAll(){
         for var item in permission{
@@ -199,6 +200,11 @@ public struct ConsentMessage: BaseConsentMessage{
         let version = setting[\.version].int ?? 0
         let revision = setting[\.version].int ?? 0
         let displayText = getText(json: setting[\.display_text].json)
+        
+        let moreInfoButtonText = getText(json: setting[\.more_info.display_text].json)
+        
+        //let moreInfoCustomURL = getText(json: setting[\.more_info.display_text].json)
+        
         let acceptButtonText = getText(json: setting[\.accept_button_text].json)
         let consentDetailTitle = getText(json: setting[\.consent_detail_title])
         
@@ -228,7 +234,9 @@ public struct ConsentMessage: BaseConsentMessage{
                               consentDetailTitle: consentDetailTitle,
                               availableLanguages: availableLanguages,
                               defaultLanguage: defaultLanguage,
-                              permission: permissions)
+                              permission: permissions,
+                              moreInfoButtonText: moreInfoButtonText
+                            )
     }
     
 }
@@ -259,6 +267,12 @@ public struct ConsentPermission{
     private static func parsePermission(json:Json?, key: ConsentPermissionName, require: Bool )-> ConsentPermission?{
         
         if let item = json?[dynamicMember: key.key].json {
+            
+            let isEnable = item[\.is_enabled].bool ?? false
+            if !isEnable {
+                return nil
+            }
+            
             
             let shortDescription = item[\.brief_description].json
             let fullDescription =  item[\.full_description].json
