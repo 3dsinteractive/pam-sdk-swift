@@ -7,19 +7,20 @@
 
 import Foundation
 
-extension Pam {
-    class StandardEvent {
-        struct PageView: PamEvent {
-            
-            let pageURL:String?
-            
-            func getPayload() -> [String : Any] {
-                return [:]
-            }
-            
-            func getEvent() -> String {
-                return ""
-            }
+
+public class PamStandardEvent {
+    
+    public static func pageView(pageName:String,  pageURL:String?, contentID: String?, payload: [String:Any]?) {
+        
+        var payload = payload
+        payload?["page_title"] = pageName
+        payload?["page_url"] = pageURL
+        
+        if let id = contentID {
+            payload?["id"] = id
         }
+            
+        Pam.track(event: "page_view",
+                  payload: payload)
     }
 }

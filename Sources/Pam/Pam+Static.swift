@@ -18,6 +18,14 @@ extension Pam {
         
     }
     
+    public static func getContactID()->String?{
+        return Pam.shared.getContactID()
+    }
+    
+    public static func getDeviceUUID()->String?{
+        return UIDevice.current.identifierForVendor?.uuidString
+    }
+    
     public static func userLogin() {
         Pam.shared.updateCustomerID()
     }
@@ -142,4 +150,35 @@ extension Pam {
         Pam.shared.setDeviceToken(deviceToken: token)
     }
         
+    static public func createNotificationReader(notificationData: [String: Any]?) -> PAMNotificationReader? {
+        
+        if let pamNoti = notificationData?["pam"] as? [String: String] {
+            let url = pamNoti["url"]
+            let flex = pamNoti["flex"]
+            let pixel = pamNoti["pixel"]
+
+            if let flex = flex {
+                let parser = FlexLangParser()
+                if let flexVC = parser.parse(flex: flex)?.render() {
+                    return PAMNotificationReader(.reader, pixel: pixel, viewController: flexVC)
+                }
+            }
+
+            if let url = url {
+                if url.hasPrefix("http") {
+                    return PAMNotificationReader(.url, pixel: pixel, url: url)
+                } else {
+                    return PAMNotificationReader(.scheme, pixel: pixel, url: url)
+                }
+            }
+        }
+
+        return nil
+    }
+    
+    public static func resolvePixel(_ url: String?){
+        guard let url = url else{return}
+        HttpClient.getReturnData(url: url, queryString: nil, headers: nil, onSuccess: nil)
+    }
+    
 }

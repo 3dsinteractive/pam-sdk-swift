@@ -91,7 +91,7 @@ class ConsentAPI {
             }
             
             Pam.track(event: "allow_consent", payload: payload){ res in
-                self.resultSubmit?["consent.id"] = AllowConsentResult(contactID: res.contactID, database: res.database, consentID: res.consentID)
+                self.resultSubmit?[consent.id] = AllowConsentResult(contactID: res.contactID, database: res.database, consentID: res.consentID)
                 self.startSubmit()
             }
         }
@@ -116,6 +116,8 @@ class ConsentAPI {
         
         isLoading = true
         let pamServerURL = Pam.shared.config?.pamServer ?? ""
+        
+        print("LOAD CONSENT = ","\(pamServerURL)/consent-message/\(consentMessageID)")
         
         HttpClient.getReturnData(url: "\(pamServerURL)/consent-message/\(consentMessageID)", queryString: nil, headers: nil){ data in
             

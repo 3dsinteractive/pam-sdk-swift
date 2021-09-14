@@ -339,7 +339,7 @@ public class Pam: NSObject {
             formField["_database"] = config?.publicDBAlias ?? ""
         }
         
-        if let uuid = UIDevice.current.identifierForVendor?.uuidString {
+        if let uuid = Pam.getDeviceUUID() {
             formField["uuid"] = uuid
         }
 
@@ -472,6 +472,8 @@ public class Pam: NSObject {
         }
         dispatch("onToken", data: ["token": deviceToken])
     }
+    
+    
 }
 
 
