@@ -26,8 +26,8 @@ extension Pam {
         return UIDevice.current.identifierForVendor?.uuidString
     }
     
-    public static func userLogin() {
-        Pam.shared.updateCustomerID()
+    public static func userLogin(customerID: String) {
+        Pam.shared.userLogin(custID: customerID)
     }
     
     public static func userLogout() {
@@ -98,12 +98,10 @@ extension Pam {
         api.loadConsent(consentMessageID: consentMessageIds)
     }
     
-    public static func loadConsentDetails(consentMessageIds: String, onLoad: @escaping (ConsentMessage) -> Void) {
+    public static func loadConsentDetails(consentMessageIds: String, onLoad: @escaping (ConsentMessage?) -> Void) {
         loadConsentDetails(consentMessageIds: [consentMessageIds]) { result in
-            if let msg = result[consentMessageIds] {
-                DispatchQueue.main.async {
-                    onLoad(msg)
-                }
+            DispatchQueue.main.async {
+                onLoad(result[consentMessageIds])
             }
         }
     }

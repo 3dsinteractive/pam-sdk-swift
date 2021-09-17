@@ -80,8 +80,6 @@ public class Pam: NSObject {
 
     var pushToken:String?
     
-    var onGetCustomerID:( ()->String? )?
-    
     var _allowTracking:Bool = false
     var allowTracking: Bool {
         set{
@@ -168,12 +166,6 @@ public class Pam: NSObject {
 //            }
         }
     
-    func updateCustomerID(){
-        if let customerId = onGetCustomerID?() {
-            self.userLogin(custID: customerId)
-        }
-    }
-
     func listen(_ event: String, callBack: @escaping ListenerCallBack) {
         if event.lowercased() == "ontoken" {
             onToken.append(callBack)
@@ -193,8 +185,6 @@ public class Pam: NSObject {
                 dispatch("onPushNotification", data: $0)
             }
             pendingNotification = []
-            
-            updateCustomerID()
         }
     }
 

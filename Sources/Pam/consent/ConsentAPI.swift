@@ -116,9 +116,7 @@ class ConsentAPI {
         
         isLoading = true
         let pamServerURL = Pam.shared.config?.pamServer ?? ""
-        
-        print("LOAD CONSENT = ","\(pamServerURL)/consent-message/\(consentMessageID)")
-        
+      
         HttpClient.getReturnData(url: "\(pamServerURL)/consent-message/\(consentMessageID)", queryString: nil, headers: nil){ data in
             
             if let data = data {
@@ -157,18 +155,33 @@ class ConsentAPI {
         
         isLoading = true
         let pamServerURL = Pam.shared.config?.pamServer ?? ""
-        let contactID = Pam.shared.getContactID() ?? ""
-        
-        HttpClient.getReturnData(url: "\(pamServerURL)/contacts/\(contactID)/consents/\(consentMessageID)", queryString: nil, headers: nil){ data in
+        if let contactID = Pam.shared.getContactID() {
             
-            if let data = data {
-                let json = Json(raw: String(data:data, encoding: .utf8) ?? "{}")
-                let userConsent = UserConsentPermissions.parse(json: json)
-                self.resultUserConsentLoad?[consentMessageID] = userConsent
+            HttpClient.getReturnData(url: "\(pamServerURL)/contacts/\(contactID)/consents/\(consentMessageID)", queryString: nil, headers: nil){ data in
+                
+                if let data = data {
+                    let json = Json(raw: String(data:data, encoding: .utf8) ?? "{}")
+                    
+                    let userConsent = UserConsentPermissions.parse(json: json)
+                    self.resultUserConsentLoad?[consentMessageID] = userConsent
+                }
+                
+                self.startLoadPermissions()
             }
-            
+        }else{
+            let userConsent = UserConsentPermissions(consentID: nil,
+                                                     type: nil,
+                                                     consentMessageId: consentMessageID,
+                                                     version: nil,
+                                                     permissions: nil,
+                                                     needToReview: true,
+                                                     lastConsentVersion: nil,
+                                                     contactID: nil,
+                                                     lastConsentAt: nil)
+            self.resultUserConsentLoad?[consentMessageID] = userConsent
             self.startLoadPermissions()
         }
+        
     }
     
 }

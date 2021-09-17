@@ -2,15 +2,15 @@
 
 public struct UserConsentPermissions{
     
-    let consentID:String?
-    let type: ConsentType?
-    let consentMessageId:String?
-    let version: Int?
-    let permissions: [ConsentPermission]?
-    let needToReview: Bool?
-    let lastConsentVersion: Int?
-    let contactID: String?
-    let lastConsentAt: String?
+    public let consentID:String?
+    public let type: ConsentType?
+    public let consentMessageId:String?
+    public let version: Int?
+    public let permissions: [ConsentPermission]?
+    public let needToReview: Bool?
+    public let lastConsentVersion: Int?
+    public let contactID: String?
+    public let lastConsentAt: String?
     
     private static func getType(type:String?)->ConsentType?{
         if(type == "tracking_type"){
@@ -61,7 +61,6 @@ public struct UserConsentPermissions{
                     fullDescriptionEnabled: false,
                     require: true,
                     allow: it)
-                list.append(perm)
             }
             
             if let it = json[\.privacy_overview].bool {
@@ -75,7 +74,7 @@ public struct UserConsentPermissions{
                 list.append(perm)
             }
             
-            if let it = json[\.privacy_overview].bool {
+            if let it = json[\.necessary_cookies].bool {
                 let perm = ConsentPermission(
                     name: .necessaryCookies,
                     shortDescription: nil,
@@ -86,7 +85,7 @@ public struct UserConsentPermissions{
                 list.append(perm)
             }
             
-            if let it = json[\.privacy_overview].bool {
+            if let it = json[\.preferences_cookies].bool {
                 let perm = ConsentPermission(
                     name: .preferencesCookies,
                     shortDescription: nil,
@@ -97,7 +96,7 @@ public struct UserConsentPermissions{
                 list.append(perm)
             }
             
-            if let it = json[\.privacy_overview].bool {
+            if let it = json[\.analytics_cookies].bool {
                 let perm = ConsentPermission(
                     name: .analyticsCookies,
                     shortDescription: nil,
@@ -108,7 +107,7 @@ public struct UserConsentPermissions{
                 list.append(perm)
             }
             
-            if let it = json[\.privacy_overview].bool {
+            if let it = json[\.marketing_cookies].bool {
                 let perm = ConsentPermission(
                     name: .marketingCookies,
                     shortDescription: nil,
@@ -119,7 +118,7 @@ public struct UserConsentPermissions{
                 list.append(perm)
             }
             
-            if let it = json[\.privacy_overview].bool {
+            if let it = json[\.socialMedia_cookies].bool {
                 let perm = ConsentPermission(
                     name: .socialMediaCookies,
                     shortDescription: nil,
@@ -134,7 +133,7 @@ public struct UserConsentPermissions{
         
         if let json = json?[\.contacting_permission].json {
             
-            if let it = json[\.privacy_overview].bool {
+            if let it = json[\.email].bool {
                 let perm = ConsentPermission(
                     name: .email,
                     shortDescription: nil,
@@ -145,7 +144,7 @@ public struct UserConsentPermissions{
                 list.append(perm)
             }
             
-            if let it = json[\.privacy_overview].bool {
+            if let it = json[\.sms].bool {
                 let perm = ConsentPermission(name: .sms,
                                              shortDescription: nil,
                                              fullDescription: nil,
@@ -155,7 +154,7 @@ public struct UserConsentPermissions{
                 list.append(perm)
             }
             
-            if let it = json[\.privacy_overview].bool {
+            if let it = json[\.line].bool {
                 let perm = ConsentPermission(name: .line,
                                              shortDescription: nil,
                                              fullDescription: nil,
@@ -165,7 +164,7 @@ public struct UserConsentPermissions{
                 list.append(perm)
             }
             
-            if let it = json[\.privacy_overview].bool {
+            if let it = json[\.facebook_messenger].bool {
                 let perm = ConsentPermission(name: .facebookMessenger,
                                              shortDescription: nil,
                                              fullDescription: nil,
@@ -175,7 +174,7 @@ public struct UserConsentPermissions{
                 list.append(perm)
             }
             
-            if let it = json[\.privacy_overview].bool {
+            if let it = json[\.push_notification].bool {
                 let perm = ConsentPermission(name: .pushNotification,
                                              shortDescription: nil,
                                              fullDescription: nil,

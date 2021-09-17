@@ -141,10 +141,14 @@ public struct ConsentMessage: BaseConsentMessage{
         }
     }
     
-    public func setPermission(name: ConsentPermissionName, isAllow: Bool) {
-        for var item in self.permission{
-            if item.name.rawValue == name.rawValue {
-                item.allow = false
+    public mutating func setPermission(name: ConsentPermissionName, isAllow: Bool) {
+        
+        for index in 0..<self.permission.count {
+            if self.permission[index].name == name {
+                self.permission[index].allow = isAllow
+                
+                print("SET", self.permission[index].name, "TO" , self.permission[index].allow)
+                break
             }
         }
     }
@@ -345,7 +349,7 @@ public struct ConsentPermission{
     
     
     public func getSubmitKey() -> String{
-        return "_allow_\(name)"
+        return "_allow_\(name.key)"
     }
 }
 
