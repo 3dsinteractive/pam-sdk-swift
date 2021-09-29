@@ -61,6 +61,7 @@ public struct UserConsentPermissions{
                     fullDescriptionEnabled: false,
                     require: true,
                     allow: it)
+                list.append(perm)
             }
             
             if let it = json[\.privacy_overview].bool {
