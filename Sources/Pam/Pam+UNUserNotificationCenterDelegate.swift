@@ -10,7 +10,11 @@ import UserNotifications
 
 extension Pam: UNUserNotificationCenterDelegate {
     public func userNotificationCenter(_: UNUserNotificationCenter, willPresent _: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        completionHandler([.sound, .badge, .banner])
+        if #available(iOS 14.0, *) {
+            completionHandler([.sound, .badge, .banner])
+        } else {
+            completionHandler([.sound, .badge])
+        }
     }
 
     public func userNotificationCenter(_: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
