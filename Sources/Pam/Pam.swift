@@ -368,7 +368,7 @@ public class Pam: NSObject {
             let response = PamResponse(code: res?["code"] as? String,
                         message: res?["message"] as? String,
                         contactID: res?["contact_id"] as? String,
-                        database: res?["database"] as? String,
+                        database: res?["_database"] as? String,
                         consentID: res?["consent_id"] as? String)
             
             DispatchQueue.main.async {
