@@ -288,7 +288,14 @@ public class Pam: NSObject {
         let loginContact = loginContactID ?? readValue(key: .loginContactID)
         return loginContact ?? publicContact
     }
-
+    
+    func getDatabaseAlias() -> String{
+        if isUserLogin() {
+            return config?.loginDBAlias ?? ""
+        }
+        return config?.publicDBAlias ?? ""
+    }
+    
     private func postTracker(event: String, payload: [String: Any]? = nil, trackerCallBack: TrackerCallback? = nil) {
         let url = (config?.pamServer ?? "") + "/trackers/events"
 
@@ -361,7 +368,7 @@ public class Pam: NSObject {
             let response = PamResponse(code: res?["code"] as? String,
                         message: res?["message"] as? String,
                         contactID: res?["contact_id"] as? String,
-                        database: res?["database"] as? String,
+                        database: res?["_database"] as? String,
                         consentID: res?["consent_id"] as? String)
             
             DispatchQueue.main.async {

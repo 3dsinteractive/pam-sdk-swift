@@ -10,6 +10,10 @@ import UIKit
 
 extension Pam {
     
+    public static func getDatabaseAlias() -> String {
+        return Pam.shared.getDatabaseAlias()
+    }
+    
     public static func track(event: String, payload: [String: Any]? = nil, trackerCallBack: TrackerCallback? = nil) {
         Pam.shared.track(event: event, payload: payload, trackerCallBack: trackerCallBack)
     }
