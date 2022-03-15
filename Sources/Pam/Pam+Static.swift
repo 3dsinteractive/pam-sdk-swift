@@ -183,4 +183,22 @@ extension Pam {
         HttpClient.getReturnData(url: url, queryString: nil, headers: nil, onSuccess: nil)
     }
     
+    public static func loadPushNotifications(email: String, onLoad: @escaping ([PamPushMessage])->Void){
+        NotificationAPI.loadPushNotifications(email: email){ list in
+            onLoad(list)
+        }
+    }
+    
+    public static func loadPushNotifications(mobile: String, onLoad: @escaping ([PamPushMessage])->Void){
+        NotificationAPI.loadPushNotifications(mobile: mobile){ list in
+            onLoad(list)
+        }
+    }
+    
+    public static func loadPushNotifications(customerID: String, onLoad: @escaping ([PamPushMessage])->Void){
+        NotificationAPI.loadPushNotifications(customerID: customerID){ list in
+            onLoad(list)
+        }
+    }
+    
 }
