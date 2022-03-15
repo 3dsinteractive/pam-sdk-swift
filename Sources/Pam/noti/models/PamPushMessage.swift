@@ -18,8 +18,8 @@ public struct PamPushMessage {
     public let popupType:String?
     public let isRead: Bool
     public let date: Date?
-    public let data: NSDictionary?
-    public let pam: NSDictionary?
+    public let data: [String: Any]?
+    public let pam: [String: Any]?
     
     public func read(){
         NotificationAPI.read(message: self)
@@ -30,23 +30,22 @@ public struct PamPushMessage {
         
         var arr: [PamPushMessage]?
         
-        if let json = try? JSONSerialization.jsonObject(with: data) as? NSDictionary{
+        if let json = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
             
-            if let items = json.object(forKey:"items") as? [NSDictionary] {
+            if let items = json["items"] as? [[String: Any]] {
                 arr = items.map { item in
-                    
-                    let deliverID = item.object(forKey:"deliver_id") as? String
-                    let pixel = item.object(forKey:"pixel") as? String
-                    let title = item.object(forKey:"title") as? String
-                    let description = item.object(forKey:"description") as? String
-                    let thumbnailUrl = item.object(forKey:"thumbnail_url") as? String
-                    let flex = item.object(forKey:"flex") as? String
-                    let url = item.object(forKey:"url") as? String
-                    let data = item.object(forKey:"json_data") as? NSDictionary
-                    let pam = item.object(forKey:"pam") as? NSDictionary
-                    let popupType = item.object(forKey:"popupType") as? String
-                    let date = item.object(forKey:"created_date") as? String
-                    let isRead = item.object(forKey:"is_open") as? Bool
+                    let deliverID = item["deliver_id"] as? String
+                    let pixel = item["pixel"] as? String
+                    let title = item["title"] as? String
+                    let description = item["description"] as? String
+                    let thumbnailUrl = item["thumbnail_url"] as? String
+                    let flex = item["flex"] as? String
+                    let url = item["url"] as? String
+                    let data = item["json_data"] as? [String: Any]
+                    let pam = item["pam"] as? [String: Any]
+                    let popupType = item["popupType"] as? String
+                    let date = item["created_date"] as? String
+                    let isRead = item["is_open"] as? Bool
                     
                     return PamPushMessage(
                         deliverID: deliverID,
@@ -58,11 +57,12 @@ public struct PamPushMessage {
                         url: url,
                         popupType: popupType,
                         isRead: isRead ?? true,
-                        date: PAMHelper.dateFrom(string: date),
+                        date: PAMUtils.dateFrom(string: date),
                         data: data,
                         pam: pam)
                 }
             }
+            
         }
         
         return arr ?? []

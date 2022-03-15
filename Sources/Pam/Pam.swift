@@ -345,7 +345,7 @@ public class Pam: NSObject {
         if isEnableLog {
             print("\n\n🦄 PAM : POST Event = 🍀\(event)🍀")
             print("🦄 PAM : Payload")
-            print("🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉\n",PAMHelper.prettify(dict: body), "\n🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉\n\n")
+            print("🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉\n",PAMUtils.prettify(dict: body), "\n🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉🍉\n\n")
         }
 
         HttpClient.post(url: url, queryString: nil, headers: nil, json: body) { res in
