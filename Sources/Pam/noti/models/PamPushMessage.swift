@@ -46,6 +46,13 @@ public struct PamPushMessage {
                     let popupType = item["popupType"] as? String
                     let date = item["created_date"] as? String
                     let isRead = item["is_open"] as? Bool
+                    var bannerUrl: String?
+                    
+                    if let flexView = FlexParser.shared.parse(flex: flex) as? PContainer {
+                        if let img = flexView.childs[0] as? PImage {
+                            bannerUrl = img.props["src"]
+                        }
+                    }
                     
                     return PamPushMessage(
                         deliverID: deliverID,
