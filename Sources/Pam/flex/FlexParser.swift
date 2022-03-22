@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 public class PView {
     var props: [String: String] = [:]
@@ -212,7 +213,6 @@ extension String {
     guard let doubleValue = Double(self) else {
       return nil
     }
-
-    return CGFloat(doubleValue)
+    return doubleValue
   }
 }
