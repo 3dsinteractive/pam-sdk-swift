@@ -68,7 +68,18 @@ extension Pam {
     
     public static func loadConsentPermissions(consentMessageIds: [String], onLoad: @escaping ([String: UserConsentPermissions]) -> Void) {
         let api = ConsentAPI()
-        api.setOnPermissionLoadCallBack(callBack: onLoad)
+        api.setOnPermissionLoadCallBack {
+            $0.forEach { (key, value) in
+                if key == (Pam.shared.config?.trackingConsentMessageID ?? "-empty-"){
+                    value.permissions?.forEach{ perm in
+                        if perm.name == .preferencesCookies {
+                            Pam.shared.allowTracking = perm.allow
+                        }
+                    }
+                }
+            }
+            onLoad($0)
+        }
         api.loadConsentPermissions(consentMessageIDs: consentMessageIds)
     }
     
@@ -123,10 +134,30 @@ extension Pam {
                 }
             }
             DispatchQueue.main.async {
+                setAllowTracking(consents: consents)
                 onSubmit(consentIDs, ids.joined(separator: ","))
             }
         }
         api.submitConsents(consents: consents)
+    }
+    
+    private static func setAllowTracking(consents: [BaseConsentMessage?]){
+        
+        var consentMsgs = consents.compactMap { msg in
+            msg as? ConsentMessage
+        }
+        
+        consentMsgs = consentMsgs.filter{ msg in
+            msg.id == (Pam.shared.config?.trackingConsentMessageID ?? "-empty-")
+        }
+        
+        consentMsgs.forEach { msg in
+            msg.permission.forEach { perm in
+                if perm.name == .preferencesCookies  {
+                    Pam.shared.allowTracking = perm.allow
+                }
+            }
+        }
     }
     
     public static func submitConsent(

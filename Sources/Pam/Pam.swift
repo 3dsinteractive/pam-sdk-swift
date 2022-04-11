@@ -254,7 +254,24 @@ public class Pam: NSObject {
     }
     
     func track(event: String, payload: [String: Any]? = nil, trackerCallBack: TrackerCallback? = nil) {
-        queue.enqueue(track: TrackQueue(event: event, payload: payload, trackerCallBack: trackerCallBack))
+        
+        let contactID = getContactID() ?? ""
+        if event == "allow_consent" || event == "save_push" {
+            queue.enqueue(track: TrackQueue(event: event, payload: payload, trackerCallBack: trackerCallBack))
+            return
+        }else if contactID != "" && allowTracking {
+            queue.enqueue(track: TrackQueue(event: event, payload: payload, trackerCallBack: trackerCallBack))
+            return
+        }
+        
+        if(isEnableLog) {
+            if(contactID == ""){
+                print("🤡 PAM : No Track Event \(event) with Payload \(String(describing: payload)). Because of no contact id yet.")
+            }
+            if(!allowTracking){
+                print("🤡 PAM : No Track Event \(event) with Payload \(String(describing: payload)). Because of usr not yet allow Preferences cookies.")
+            }
+        }
     }
     
     func getLoginContactID()->String?{
