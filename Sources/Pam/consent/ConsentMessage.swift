@@ -147,7 +147,9 @@ public struct ConsentMessage: BaseConsentMessage{
             if self.permission[index].name == name {
                 self.permission[index].allow = isAllow
                 
-                print("SET", self.permission[index].name, "TO" , self.permission[index].allow)
+                if Pam.shared.isEnableLog {
+                    print("SET", self.permission[index].name, "TO" , self.permission[index].allow)
+                }
                 break
             }
         }
