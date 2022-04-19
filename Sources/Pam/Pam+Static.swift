@@ -209,25 +209,46 @@ extension Pam {
         return nil
     }
     
+    /**
+     Mark notification as read
+     */
     public static func resolvePixel(_ url: String?){
         guard let url = url else{return}
         HttpClient.getReturnData(url: url, queryString: nil, headers: nil, onSuccess: nil)
     }
     
+    /**
+     Find push notification from email
+     */
     public static func loadPushNotifications(email: String, onLoad: @escaping ([PamPushMessage])->Void){
         NotificationAPI.loadPushNotifications(email: email){ list in
             onLoad(list)
         }
     }
     
+    /**
+     Find push notification from  mobile number
+     */
     public static func loadPushNotifications(mobile: String, onLoad: @escaping ([PamPushMessage])->Void){
         NotificationAPI.loadPushNotifications(mobile: mobile){ list in
             onLoad(list)
         }
     }
     
+    /**
+     Find push notification from customer id
+     */
     public static func loadPushNotifications(customerID: String, onLoad: @escaping ([PamPushMessage])->Void){
         NotificationAPI.loadPushNotifications(customerID: customerID){ list in
+            onLoad(list)
+        }
+    }
+    
+    /**
+     Find push notification from PAM contact id
+     */
+    public static func loadPushNotifications(onLoad: @escaping ([PamPushMessage])->Void){
+        NotificationAPI.loadPushNotifications(){ list in
             onLoad(list)
         }
     }
