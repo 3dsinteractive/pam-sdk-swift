@@ -22,9 +22,15 @@ class NotificationAPI {
         let contactID = Pam.getContactID() ?? "-"
         let pamServerURL = Pam.shared.config?.pamServer ?? ""
 
-        let endpoint = "\(pamServerURL)/api/app-notifications/?_database=\(db)&_contact_id=\(contactID)&sms=\(mobile)"
+        let endpoint = "\(pamServerURL)/api/app-notifications/"
         
-        HttpClient.getReturnData(url: endpoint, queryString: nil, headers: nil){ data in
+        let queryString = [
+            "_contact_id": contactID,
+            "sms": mobile,
+            "_database": db
+        ]
+        
+        HttpClient.getReturnData(url: endpoint, queryString: queryString, headers: nil){ data in
             guard let data = data else {
                 onLoad?([])
                 return
@@ -41,9 +47,15 @@ class NotificationAPI {
         let contactID = Pam.getContactID() ?? "-"
         let pamServerURL = Pam.shared.config?.pamServer ?? ""
 
-        let endpoint = "\(pamServerURL)/api/app-notifications/?_database=\(db)&_contact_id=\(contactID)&email=\(email)"
+        let endpoint = "\(pamServerURL)/api/app-notifications/"
         
-        HttpClient.getReturnData(url: endpoint, queryString: nil, headers: nil){ data in
+        let queryString = [
+            "_contact_id": contactID,
+            "email": email,
+            "_database": db
+        ]
+        
+        HttpClient.getReturnData(url: endpoint, queryString: queryString, headers: nil){ data in
             guard let data = data else {
                 onLoad?([])
                 return
@@ -60,9 +72,15 @@ class NotificationAPI {
         let contactID = Pam.getContactID() ?? "-"
         let pamServerURL = Pam.shared.config?.pamServer ?? ""
 
-        let endpoint = "\(pamServerURL)/api/app-notifications/?_database=\(db)&_contact_id=\(contactID)&customer=\(customerID)"
+        let endpoint = "\(pamServerURL)/api/app-notifications/"
         
-        HttpClient.getReturnData(url: endpoint, queryString: nil, headers: nil){ data in
+        let queryString = [
+            "_contact_id": contactID,
+            "customer": customerID,
+            "_database": db
+        ]
+        
+        HttpClient.getReturnData(url: endpoint, queryString: queryString, headers: nil){ data in
             guard let data = data else {
                 onLoad?([])
                 return

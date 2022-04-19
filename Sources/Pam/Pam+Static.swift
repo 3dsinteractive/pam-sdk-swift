@@ -43,7 +43,7 @@ extension Pam {
     }
     
     public static func getCustomerID(){
-        
+        return Pam.shared.getCustomerID()
     }
     
     public static func listen(_ event: String, callBack: @escaping ListenerCallBack) {

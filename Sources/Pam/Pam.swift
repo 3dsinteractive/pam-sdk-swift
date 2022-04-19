@@ -396,6 +396,10 @@ public class Pam: NSObject {
         }
     }
     
+    func getCustomerID(){
+        return custID
+    }
+    
     func userLogin(custID: String) {
         
         track(event: "delete_media", payload: ["_delete_media": ["ios_notification": ""]])
