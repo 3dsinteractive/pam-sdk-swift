@@ -17,18 +17,40 @@ class NotificationAPI {
         HttpClient.getReturnData(url: pixel, queryString: nil, headers: nil,onSuccess: nil)
     }
     
-    static func loadPushNotifications(mobile: String, onLoad: OnLoadNotifications? = nil ){
+    static func loadPushNotifications(mobile: String? = nil, email: String? = nil, customerID: String? = nil, contactID: String? = nil, onLoad: OnLoadNotifications? = nil ){
+        
         let db = Pam.getDatabaseAlias()
-        let contactID = Pam.getContactID() ?? "-"
+        
+        var _contactID: String?
+        if contactID == nil {
+            _contactID = Pam.getContactID()
+        }else{
+            _contactID = contactID
+        }
+        
         let pamServerURL = Pam.shared.config?.pamServer ?? ""
 
         let endpoint = "\(pamServerURL)/api/app-notifications/"
         
-        let queryString = [
-            "_contact_id": contactID,
-            "sms": mobile,
+        var queryString = [
             "_database": db
         ]
+        
+        if let mobile = mobile {
+            queryString["sms"] = mobile
+        }
+        
+        if let email = email {
+            queryString["email"] = email
+        }
+        
+        if let customerID = customerID {
+            queryString["customer"] = customerID
+        }
+        
+        if let _contactID = _contactID {
+            queryString["_contact_id"] = _contactID
+        }
         
         HttpClient.getReturnData(url: endpoint, queryString: queryString, headers: nil){ data in
             guard let data = data else {
@@ -42,54 +64,5 @@ class NotificationAPI {
         }
     }
     
-    static func loadPushNotifications(email: String, onLoad: OnLoadNotifications? = nil){
-        let db = Pam.getDatabaseAlias()
-        let contactID = Pam.getContactID() ?? "-"
-        let pamServerURL = Pam.shared.config?.pamServer ?? ""
-
-        let endpoint = "\(pamServerURL)/api/app-notifications/"
-        
-        let queryString = [
-            "_contact_id": contactID,
-            "email": email,
-            "_database": db
-        ]
-        
-        HttpClient.getReturnData(url: endpoint, queryString: queryString, headers: nil){ data in
-            guard let data = data else {
-                onLoad?([])
-                return
-            }
-            
-            let res = String(data:data, encoding: .utf8)
-            let messages = PamPushMessage.parse(json: res)
-            onLoad?(messages)
-        }
-    }
-    
-    static func loadPushNotifications(customerID: String, onLoad: OnLoadNotifications? = nil){
-        let db = Pam.getDatabaseAlias()
-        let contactID = Pam.getContactID() ?? "-"
-        let pamServerURL = Pam.shared.config?.pamServer ?? ""
-
-        let endpoint = "\(pamServerURL)/api/app-notifications/"
-        
-        let queryString = [
-            "_contact_id": contactID,
-            "customer": customerID,
-            "_database": db
-        ]
-        
-        HttpClient.getReturnData(url: endpoint, queryString: queryString, headers: nil){ data in
-            guard let data = data else {
-                onLoad?([])
-                return
-            }
-            
-            let res = String(data:data, encoding: .utf8)
-            let messages = PamPushMessage.parse(json: res)
-            onLoad?(messages)
-        }
-    }
     
 }
