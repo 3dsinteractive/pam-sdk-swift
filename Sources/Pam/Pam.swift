@@ -396,7 +396,7 @@ public class Pam: NSObject {
         }
     }
     
-    func getCustomerID(){
+    func getCustomerID()->String?{
         return custID
     }
     
