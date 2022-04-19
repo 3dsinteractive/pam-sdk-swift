@@ -42,7 +42,7 @@ extension Pam {
         try Pam.shared.initialize(launchOptions: launchOptions, enableLog: enableLog)
     }
     
-    public static func getCustomerID(){
+    public static func getCustomerID()->String?{
         return Pam.shared.getCustomerID()
     }
     
