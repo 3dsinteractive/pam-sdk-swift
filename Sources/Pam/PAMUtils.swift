@@ -54,9 +54,9 @@ public class PAMUtils {
                 flex: flex,
                 url: url,
                 popupType: popupType,
-                isRead: false,
+                isOpen: false,
                 date: Date(),
-                data: payload,
+                payload: payload,
                 pam: nil)
         }
         

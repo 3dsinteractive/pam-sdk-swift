@@ -16,9 +16,9 @@ public struct PamPushMessage {
     public let flex:String?
     public let url:String?
     public let popupType:String?
-    public let isRead: Bool
+    public let isOpen: Bool
     public let date: Date?
-    public let data: [String: Any]?
+    public let payload: [String: Any]?
     public let pam: [String: Any]?
     
     public func read(){
@@ -41,11 +41,11 @@ public struct PamPushMessage {
                     let thumbnailUrl = item["thumbnail_url"] as? String
                     let flex = item["flex"] as? String
                     let url = item["url"] as? String
-                    let data = item["json_data"] as? [String: Any]
+                    let payload = item["json_data"] as? [String: Any]
                     let pam = item["pam"] as? [String: Any]
                     let popupType = item["popupType"] as? String
                     let date = item["created_date"] as? String
-                    let isRead = item["is_open"] as? Bool
+                    let isOpen = item["is_open"] as? Bool
                     var bannerUrl: String?
                     _ = bannerUrl;
                     
@@ -66,9 +66,9 @@ public struct PamPushMessage {
                         flex: flex,
                         url: url,
                         popupType: popupType,
-                        isRead: isRead ?? true,
+                        isOpen: isOpen ?? true,
                         date: PAMUtils.dateFrom(string: date),
-                        data: data,
+                        payload: payload,
                         pam: pam)
                 }
             }
