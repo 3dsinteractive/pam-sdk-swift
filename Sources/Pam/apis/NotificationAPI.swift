@@ -30,7 +30,7 @@ class NotificationAPI {
         
         let pamServerURL = Pam.shared.config?.pamServer ?? ""
 
-        let endpoint = "\(pamServerURL)/api/app-notifications/"
+        let endpoint = "\(pamServerURL)/api/app-notifications"
         
         var queryString = [
             "_database": db
