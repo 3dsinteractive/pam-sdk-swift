@@ -19,7 +19,7 @@ public struct PamPushMessage {
     public let isOpen: Bool
     public let date: Date?
     public let payload: [String: Any]?
-    public let pam: [String: Any]?
+    public let bannerUrl: String?
     
     public func read(){
         NotificationAPI.read(message: self)
@@ -41,13 +41,14 @@ public struct PamPushMessage {
                     let thumbnailUrl = item["thumbnail_url"] as? String
                     let flex = item["flex"] as? String
                     let url = item["url"] as? String
-                    let payload = item["json_data"] as? [String: Any]
-                    let pam = item["pam"] as? [String: Any]
-                    let popupType = item["popupType"] as? String
+                    
+                    var payload = item["json_data"] as? [String: Any]
+                    payload = payload?["pam"] as? [String: Any]
+                    
+                    let popupType = payload?["popupType"] as? String
                     let date = item["created_date"] as? String
                     let isOpen = item["is_open"] as? Bool
                     var bannerUrl: String?
-                    _ = bannerUrl;
                     
                     if let flex = flex {
                         if let flexView = FlexParser.shared.parse(flex: flex) as? PContainer {
@@ -56,6 +57,8 @@ public struct PamPushMessage {
                             }
                         }
                     }
+                    
+                    
                     
                     return PamPushMessage(
                         deliverID: deliverID,
@@ -69,7 +72,8 @@ public struct PamPushMessage {
                         isOpen: isOpen ?? true,
                         date: PAMUtils.dateFrom(string: date),
                         payload: payload,
-                        pam: pam)
+                        bannerUrl: bannerUrl
+                    )
                 }
             }
             

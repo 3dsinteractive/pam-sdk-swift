@@ -45,6 +45,15 @@ public class PAMUtils {
                 payload[key as! String] = value
             }
             
+            var bannerUrl: String?
+            if let flex = flex {
+                if let flexView = FlexParser.shared.parse(flex: flex) as? PContainer {
+                    if let img = flexView.childs[0] as? PImage {
+                        bannerUrl = img.props["src"]
+                    }
+                }
+            }
+            
             return PamPushMessage(
                 deliverID: nil,
                 pixel: pixel,
@@ -57,7 +66,8 @@ public class PAMUtils {
                 isOpen: false,
                 date: Date(),
                 payload: payload,
-                pam: nil)
+                bannerUrl:bannerUrl
+            )
         }
         
         return nil
