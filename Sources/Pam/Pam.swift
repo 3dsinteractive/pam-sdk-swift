@@ -411,7 +411,7 @@ public class Pam: NSObject {
     
     func userLogin(custID: String) {
     
-        let delay: Double = 2.0
+        let delay: Double = 3.0
        
         track(event: "delete_media", delayAfterPost: delay, payload: ["_delete_media": ["ios_notification": ""]], trackerCallBack: nil)
         
@@ -421,7 +421,7 @@ public class Pam: NSObject {
         track(event: "login", delayAfterPost: delay)
         
         if let token = self.pushToken {
-            track(event: "save_push", delayAfterPost: delay, payload: ["ios_notification": token, "from":"login"])
+            track(event: "save_push", delayAfterPost: 0.0, payload: ["ios_notification": token, "from":"login"])
         }
         
     }
@@ -431,8 +431,10 @@ public class Pam: NSObject {
             print("🦄 PAM :  Logout")
         }
         
-        track(event: "delete_media", payload: ["_delete_media": ["ios_notification": ""]])
-        track(event: "logout"){ _ in
+        let delay: Double = 3.0
+        
+        track(event: "delete_media", delayAfterPost: delay, payload: ["_delete_media": ["ios_notification": ""]])
+        track(event: "logout", delayAfterPost: delay){ _ in
             self.custID = nil
             self.loginContactID = nil
             self.removeValue(key: .customerID)
