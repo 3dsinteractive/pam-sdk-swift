@@ -104,7 +104,7 @@ public class Pam: NSObject {
         allowTracking = readBoolValue(key: .allowTracking) ?? false
         
         queue.onQueueStart = {
-            self.postTracker(event: $0.event, payload: $0.payload, trackerCallBack: $0.trackerCallBack)
+            self.postTracker(event: $0.event, delayAfterPost: $0.delayAfterPost, payload: $0.payload, trackerCallBack: $0.trackerCallBack)
         }
 
         if let filepath = Bundle.main.path(forResource: "pam-config", ofType: "json") {
@@ -253,14 +253,14 @@ public class Pam: NSObject {
         return custID != nil
     }
     
-    func track(event: String, payload: [String: Any]? = nil, trackerCallBack: TrackerCallback? = nil) {
+    func track(event: String, delayAfterPost: Double? , payload: [String: Any]? = nil, trackerCallBack: TrackerCallback? = nil) {
         
         let contactID = getContactID() ?? ""
         if event == "allow_consent" || event == "save_push" {
-            queue.enqueue(track: TrackQueue(event: event, payload: payload, trackerCallBack: trackerCallBack))
+            queue.enqueue(track: TrackQueue(event: event, payload: payload, trackerCallBack: trackerCallBack, delayAfterPost: delayAfterPost))
             return
         }else if contactID != "" && allowTracking {
-            queue.enqueue(track: TrackQueue(event: event, payload: payload, trackerCallBack: trackerCallBack))
+            queue.enqueue(track: TrackQueue(event: event, payload: payload, trackerCallBack: trackerCallBack, delayAfterPost: delayAfterPost))
             return
         }
         
@@ -272,6 +272,10 @@ public class Pam: NSObject {
                 print("🤡 PAM : No Track Event \(event) with Payload \(String(describing: payload)). Because of usr not yet allow Preferences cookies.")
             }
         }
+    }
+    
+    func track(event: String, payload: [String: Any]? = nil, trackerCallBack: TrackerCallback? = nil) {
+        track(event: event, delayAfterPost: 0.0, payload: payload, trackerCallBack: trackerCallBack)
     }
     
     func getLoginContactID()->String?{
@@ -313,7 +317,7 @@ public class Pam: NSObject {
         return config?.publicDBAlias ?? ""
     }
     
-    private func postTracker(event: String, payload: [String: Any]? = nil, trackerCallBack: TrackerCallback? = nil) {
+    private func postTracker(event: String, delayAfterPost: Double?, payload: [String: Any]? = nil, trackerCallBack: TrackerCallback? = nil) {
         let url = (config?.pamServer ?? "") + "/trackers/events"
 
         var body: [String: Any] = [
@@ -388,6 +392,11 @@ public class Pam: NSObject {
                         database: res?["_database"] as? String,
                         consentID: res?["consent_id"] as? String)
             
+            
+            let delay = delayAfterPost ?? 0.0;
+            if delay > 0.0 {
+                Thread.sleep(forTimeInterval: delay)
+            }
             DispatchQueue.main.async {
                 trackerCallBack?(response)
                 self.queue.next()
@@ -401,16 +410,20 @@ public class Pam: NSObject {
     }
     
     func userLogin(custID: String) {
-        
-        track(event: "delete_media", payload: ["_delete_media": ["ios_notification": ""]])
+    
+        let delay: Double = 2.0
+       
+        track(event: "delete_media", delayAfterPost: delay, payload: ["_delete_media": ["ios_notification": ""]], trackerCallBack: nil)
         
         saveValue(value: custID, key: .customerID)
         self.custID = custID
-        track(event: "login")
+        
+        track(event: "login", delayAfterPost: delay)
         
         if let token = self.pushToken {
-            track(event: "save_push", payload: ["ios_notification": token])
+            track(event: "save_push", delayAfterPost: delay, payload: ["ios_notification": token, "from":"login"])
         }
+        
     }
     
     func userLogout() {
@@ -484,6 +497,7 @@ public class Pam: NSObject {
         #else
             let saveToken = deviceToken
         #endif
+        self.pushToken = saveToken
         track(event: "save_push", payload: ["ios_notification": saveToken])
         if isEnableLog {
             print("🦄 PAM :  Save Push Notification Token=\(saveToken)")

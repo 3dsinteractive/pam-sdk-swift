@@ -53,7 +53,6 @@ public class Pamson {
                     tempPropName = buffer
                     buffer = ""
                 }else{
-                    print(tempPropName, "= ", buffer)
                     lastElement?.prop[tempPropName] = buffer
                     buffer = ""
                     tempPropName = ""

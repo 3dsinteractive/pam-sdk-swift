@@ -26,6 +26,7 @@ class TrackerQueueManger {
         if queue.count > 0 {
             processing = true
             let track = queue.remove(at: 0)
+           
             onQueueStart?(track)
         }else{
             processing = false

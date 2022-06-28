@@ -40,11 +40,12 @@ public class PAMUtils {
             let title = alert?["title"]
             let body = alert?["body"]
             
-            var payload:[String: Any] = [:]
-            for (value, key) in data {
+            var payload:[String: Any?] = [:]
+            
+            for (key, value) in data {
                 payload[key as! String] = value
             }
-            
+         
             var bannerUrl: String?
             if let flex = flex {
                 if let flexView = FlexParser.shared.parse(flex: flex) as? PContainer {
