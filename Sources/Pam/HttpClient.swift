@@ -21,6 +21,14 @@ enum HttpClient {
 
     }
     
+    private static func getDateString() -> String{
+        let d = Date()
+        let df = DateFormatter()
+        df.dateFormat = "y-MM-dd H:mm:ss.SSSS"
+
+        return df.string(from: d)
+    }
+    
     static func post(url: String, queryString: [String: String]?, headers: [String: String]?, json: [String: Any]?, onSuccess: OnSuccess?) {
         guard var url = URLComponents(string: url) else { return }
         url.queryItems = []
@@ -42,16 +50,18 @@ enum HttpClient {
         if let json = json {
             request.httpBody = try? JSONSerialization.data(withJSONObject: json, options: [])
         }
-
+        
+        let requestID = Int.random(in: 0..<99999)
+        
         if Pam.shared.isEnableLog {
-            print("🛺 Request POST: ", request.curlString )
+            print("\(requestID) [\(getDateString())] 🛺 Request POST [\(json?["event"] ?? "")]: ", request.curlString )
         }
         let session = URLSession.shared
         session.dataTask(with: request) { data, _, error in
             if error == nil, let data = data {
                 
                 if Pam.shared.isEnableLog {
-                    print("🛺 PAM", String(data: data, encoding: .utf8) ?? "" )
+                    print("\(requestID) [\(getDateString())] 🛺 PAM", String(data: data, encoding: .utf8) ?? "" )
                 }
                 
                 let resultDictionay = try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]

@@ -27,7 +27,7 @@ class TrackingConsentRequestViewController: UIViewController {
     var consentOptions:[ConsentOption] = []
     
     @IBAction func langTapped(){
-        print(langToggle.selectedSegmentIndex)
+        
     }
     
     override func viewDidLoad() {

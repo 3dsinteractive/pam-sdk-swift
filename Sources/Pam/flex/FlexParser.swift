@@ -56,7 +56,6 @@ public class PContainer: PView{
         
         for v in childs {
             let subView = v.createView(parser: parser)
-            print(subView)
             view.addArrangedSubview(subView)
         }
         
