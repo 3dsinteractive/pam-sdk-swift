@@ -194,7 +194,7 @@ public struct ConsentMessage: BaseConsentMessage{
         )
     }
     
-    static func parse(json:Json) -> ConsentMessage{
+    public static func parse(json:Json) -> ConsentMessage{
         let id = json[\.consent_message_id].string ?? ""
         let name = json[\.name].string ?? ""
         let description = json[\.description].string ?? ""
