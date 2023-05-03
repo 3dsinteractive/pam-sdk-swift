@@ -46,6 +46,7 @@ enum HttpClient {
         headers?.forEach {
             request.addValue($0.value, forHTTPHeaderField: $0.key)
         }
+        request.addValue("ios", forHTTPHeaderField: "platform")
 
         if let json = json {
             request.httpBody = try? JSONSerialization.data(withJSONObject: json, options: [])
@@ -87,12 +88,11 @@ enum HttpClient {
         headers?.forEach {
             request.addValue($0.value, forHTTPHeaderField: $0.key)
         }
+        request.addValue("ios", forHTTPHeaderField: "platform")
 
-            
         if Pam.shared.isEnableLog {
             print("🛺 Request GET: ", request.curlString )
         }
-        
         
         let session = URLSession.shared
         session.dataTask(with: request) { data, _, error in
